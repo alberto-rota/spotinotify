@@ -25,6 +25,7 @@ from rich import print
 
 GET_TRACK_URL="https://api.spotify.com/v1/me/player/currently-playing"
 ACCESS_TOKEN="BQCm0b2tI2ymUwPORu0-2qmIp9nAyFC54YBpbOtTJ86jPxxotmz0zLk-E5ymbynYI3koqtLSHec8EuYpp8p90SRcvWDDi-5VklqKOrVHz7IWpfzhTnq3dnCafz9F8Qj8XkoD0br5Xi2cyzKlxq33ybK3bbqQQ36w5M-6TH20VoFPFLqNIXigJAwJ9Cg"
+
 pressed = set()
 COMBINATIONS = [
     {
@@ -59,7 +60,7 @@ def new_toast(title,artist,album):
     wintoaster.show_toast(toast)
 
 
-def get_current_track(token):
+def get_current_track(token) -> dict:
     response = requests.get(
         GET_TRACK_URL,
         headers={
@@ -146,24 +147,25 @@ def main():
     
     username = "alberto_rota"
     scope = "user-read-currently-playing"
-    token = util.prompt_for_user_token(username, scope, redirect_uri=os.getenv("env:SPOTIPY_REDIRECT_URI"))
+    token = util.prompt_for_user_token(username, scope, redirect_uri="http://127.0.0.1:9090")
     sp = spotipy.Spotify(auth=token)
     results = sp.current_user_playing_track()
     print_track(response_to_track(results))
+    new_toast(response_to_track(results))
     
-    return 0 
+    # return 0 
 
 
     with keyboard.GlobalHotKeys({
-        "<ctrl_r>+<alt>": playback_next,
-        "<ctrl_l>+<alt>" : playback_previous,
+        "<ctrl_r>+p": playback_next,
+        "<ctrl_l>+p" : playback_previous,
         # "<ctrl>+<alt>+<space>": playback_pause,
         # "<ctrl>+<alt>+<esc>"  : playback_quit
     }) as listener:
         listener.join()
     
-    # with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
-    #     listener.join()
+    with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
+        listener.join()
 
 if __name__ == "__main__":
     main()
